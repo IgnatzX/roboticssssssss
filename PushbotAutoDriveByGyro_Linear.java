@@ -1,3 +1,33 @@
+/*
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted (subject to the limitations in the disclaimer below) provided that
+the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list
+of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this
+list of conditions and the following disclaimer in the documentation and/or
+other materials provided with the distribution.
+
+Neither the name of Robert Atkinson nor the names of his contributors may be used to
+endorse or promote products derived from this software without specific prior
+written permission.
+
+NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESSFOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 package org.firstinspires.ftc.robotcontroller.external.samples;
 
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
@@ -40,8 +70,7 @@ import com.qualcomm.robotcore.util.Range;
  * Use Android Studios to Copy this Class, and Paste it into your team's code folder with a new name.
  * Remove or comment out the @Disabled line to add this opmode to the Driver Station OpMode list
  */
- 
- 
+
 @Autonomous(name="Pushbot: Auto Drive By Gyro", group="Pushbot")
 @Disabled
 public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
@@ -67,7 +96,7 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
 
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runOpMode() {
 
         /*
          * Initialize the standard drive system variables.
@@ -87,8 +116,8 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
         gyro.calibrate();
 
         // make sure the gyro is calibrated before continuing
-        while (gyro.isCalibrating())  {
-            Thread.sleep(50);
+        while (!isStopRequested() && gyro.isCalibrating())  {
+            sleep(50);
             idle();
         }
 
@@ -122,6 +151,8 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
         telemetry.addData("Path", "Complete");
         telemetry.update();
     }
+
+
    /**
     *  Method to drive on a fixed compass bearing (angle), based on encoder counts.
     *  Move will stop if either of these conditions occur:
@@ -136,7 +167,7 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
     */
     public void gyroDrive ( double speed,
                             double distance,
-                            double angle) throws InterruptedException {
+                            double angle) {
 
         int     newLeftTarget;
         int     newRightTarget;
@@ -200,11 +231,6 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
                                                              robot.rightMotor.getCurrentPosition());
                 telemetry.addData("Speed",   "%5.2f:%5.2f",  leftSpeed, rightSpeed);
                 telemetry.update();
-
-                // Allow time for other processes to run.
-                idle();
-            }
-
             }
 
             // Stop all motion;
@@ -227,16 +253,13 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
      * @param angle      Absolute Angle (in Degrees) relative to last gyro reset.
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from current heading.
-     * @throws InterruptedException
      */
-    public void gyroTurn (  double speed, double angle)
-                              throws InterruptedException {
+    public void gyroTurn (  double speed, double angle) {
 
         // keep looping while we are still active, and not on heading.
         while (opModeIsActive() && !onHeading(speed, angle, P_TURN_COEFF)) {
             // Update telemetry & Allow time for other processes to run.
             telemetry.update();
-            idle();
         }
     }
 
@@ -246,17 +269,11 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
      *
      * @param speed      Desired speed of turn.
      * @param angle      Absolute Angle (in Degrees) relative to last gyro reset.
-     *  Move will stop once the requested time has elapsed
-     *
-     * @param speed      Desired speed of turn.
-     * @param angle      Absolute Angle (in Degrees) relative to last gyro reset.
      *                   0 = fwd. +ve is CCW from fwd. -ve is CW from forward.
      *                   If a relative angle is required, add/subtract from current heading.
      * @param holdTime   Length of time (in seconds) to hold the specified heading.
-     * @throws InterruptedException
      */
-    public void gyroHold( double speed, double angle, double holdTime)
-                            throws InterruptedException {
+    public void gyroHold( double speed, double angle, double holdTime) {
 
         ElapsedTime holdTimer = new ElapsedTime();
 
@@ -266,7 +283,6 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
             // Update telemetry & Allow time for other processes to run.
             onHeading(speed, angle, P_TURN_COEFF);
             telemetry.update();
-            idle();
         }
 
         // Stop all motion;
@@ -284,7 +300,6 @@ public class PushbotAutoDriveByGyro_Linear extends LinearOpMode {
      * @param PCoeff    Proportional Gain coefficient
      * @return
      */
-     
     boolean onHeading(double speed, double angle, double PCoeff) {
         double   error ;
         double   steer ;
